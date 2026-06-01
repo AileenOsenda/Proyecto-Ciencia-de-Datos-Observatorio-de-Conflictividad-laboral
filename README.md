@@ -1,0 +1,2 @@
+# Proyecto-Ciencia-de-Datos-Observatorio-de-Conflictividad-laboral
+Este es un proyecto de Ciencia de datos creado por mí como ayudante del Observatorio de Conflictividad Laboral de la UNC. En base a datos obtenidos de Web Scrapping de diarios locales sobre hechos categorizados de importancia para el caso y objeto de estudio, traté de realizar análisis predictivos temporales y análisis socio computacionales
