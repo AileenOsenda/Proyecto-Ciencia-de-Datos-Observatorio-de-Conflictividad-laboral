@@ -1,512 +1,380 @@
-# 📰 Documentación — Análisis de Conflictividad Laboral en Medios de Córdoba
+# 📰 Observatorio de Conflictividad Laboral en Córdoba
+### Bilingual Documentation / Documentación bilingüe
 
-> **Proyecto:** Monitoreo de medios gráficos de Córdoba  
-> **Herramientas:** Python · Pandas · Matplotlib · Seaborn · NetworkX · Google Colab  
-> **Corpus:** Seis diarios de Córdoba (La Izquierda Diario, La Voz del Interior, La Voz de San Justo, El Diario de Villa María, Cba24n y Puntal Río Cuarto)  
-> **Última actualización:** Mayo 2025
+> **Proyecto / Project:** Observatorio de Conflictividad Laboral — Provincia de Córdoba
+> **Herramientas / Tools:** Python · Pandas · Matplotlib · Seaborn · NetworkX · Google Colab
+> **Corpus:** Base de notas periodísticas codificadas de diarios de Córdoba (2012–2026)
+> **Última actualización / Last updated:** Agosto 2026 / August 2026
 
 ---
+
+## 🌐 Idioma / Language
+
+- [🇦🇷 Versión en Español](#versión-en-español)
+- [🇬🇧 English Version](#english-version)
+
+---
+
+# Versión en Español
 
 ## Índice
 
 - [1. Estructura general del proyecto](#1-estructura-general-del-proyecto)
-- [2. Flujo de trabajo sin scraping](#2-flujo-de-trabajo-sin-scraping)
-- [Fase I — Configuración](#fase-i--configuración)
-  - [Celda 1 — Instalación de dependencias](#celda-1--instalación-de-dependencias)
-  - [Celda 2 — Importaciones](#celda-2--importaciones)
-  - [Celda 3 — Expresiones regulares y categorías](#celda-3--expresiones-regulares-y-categorías)
-  - [Celda 4 — Funciones auxiliares](#celda-4--funciones-auxiliares)
-- [Fase II — Carga de datos desde Excel](#fase-ii--carga-de-datos-desde-excel)
-  - [Celda 7 — Cargar un único archivo Excel](#celda-7--cargar-un-único-archivo-excel)
-  - [Celda 7b — Cargar múltiples archivos Excel](#celda-7b--cargar-múltiples-archivos-excel)
-  - [Celda 7c — Diagnóstico de columnas](#celda-7c--diagnóstico-de-columnas)
-- [Fase III — Análisis estadístico inicial](#fase-iii--análisis-estadístico-inicial)
-  - [Celda 8 — Vista general del dataset](#celda-8--vista-general-del-dataset)
-  - [Celda 9 — Frecuencia por diario](#celda-9--frecuencia-por-diario)
-  - [Celda 10 — Frecuencia por categoría temática](#celda-10--frecuencia-por-categoría-temática)
-  - [Celda 11 — Evolución temporal simple](#celda-11--evolución-temporal-simple)
-  - [Celda 12 — Análisis de palabras clave individuales](#celda-12--análisis-de-palabras-clave-individuales)
-  - [Celda 13 — Intensidad de cobertura](#celda-13--intensidad-de-cobertura)
-  - [Celda 14 — Co-ocurrencia de palabras clave](#celda-14--co-ocurrencia-de-palabras-clave)
-- [Fase IV — Visualizaciones](#fase-iv--visualizaciones)
-  - [Celda 15 — Gráficos de categoría y diario](#celda-15--gráficos-de-categoría-y-diario)
-  - [Celda 16 — Serie temporal de noticias por día](#celda-16--serie-temporal-de-noticias-por-día)
-  - [Celda 17 — Heatmap diario × categoría](#celda-17--heatmap-diario--categoría)
-  - [Celda 18 — Boxplot de intensidad por categoría](#celda-18--boxplot-de-intensidad-por-categoría)
-  - [Celda 19 — Nube de palabras clave](#celda-19--nube-de-palabras-clave)
-  - [Celda 20 — Resumen ejecutivo](#celda-20--resumen-ejecutivo)
-- [Fase V — Análisis avanzados](#fase-v--análisis-avanzados)
-  - [Celda 21 — Perfil editorial por diario](#celda-21--perfil-editorial-por-diario)
-  - [Celda 22 — Red de co-ocurrencia](#celda-22--red-de-co-ocurrencia)
-  - [Celda 23 — Índice de diversidad temática](#celda-23--índice-de-diversidad-temática-entropía-de-shannon)
-  - [Celda 24 — Actores sindicales mencionados](#celda-24--actores-sindicales-mencionados)
-  - [Celda 25 — Score de relevancia y ranking](#celda-25--score-de-relevancia-y-ranking-de-noticias)
-- [Fase VI — Análisis temporal e histórico](#fase-vi--análisis-temporal-e-histórico)
-  - [Celda 27 — Noticias vs. tiempo](#celda-27--noticias-vs-tiempo-análisis-temporal-completo)
-  - [Celda 28 — Comparación entre períodos](#celda-28--comparación-entre-períodos)
-  - [Celda 29 — Detección de picos de conflictividad](#celda-29--detección-de-picos-de-conflictividad)
-  - [Celda 30 — Evolución de actores sindicales](#celda-30--evolución-de-actores-sindicales-en-el-tiempo)
-  - [Celda 31 — Sectores afectados vs. movilizados](#celda-31--sectores-afectados-vs-sectores-movilizados)
+- [2. Esquema de columnas de la base](#2-esquema-de-columnas-de-la-base)
+- [Fase 0 — Configuración](#fase-0--configuración)
+- [Fase 1 — Carga de datos](#fase-1--carga-de-datos)
+- [Fase 2 — Control de calidad del corpus](#fase-2--control-de-calidad-del-corpus)
+- [Fase 3 — Análisis descriptivos](#fase-3--análisis-descriptivos)
+- [Fase 4 — Análisis temporales avanzados](#fase-4--análisis-temporales-avanzados)
+- [Fase 5 — Perfil editorial, redes y actores](#fase-5--perfil-editorial-redes-y-actores)
+- [Fase 6 — Motor gráfico unificado](#fase-6--motor-gráfico-unificado)
+- [Fase 7 — Carga de bases adicionales](#fase-7--carga-de-bases-adicionales)
 - [Referencias metodológicas](#referencias-metodológicas)
 
 ---
 
 ## 1. Estructura general del proyecto
 
-El proyecto se organiza como un pipeline modular de seis fases. Las fases I y II son obligatorias siempre. Las fases III a VI pueden ejecutarse en cualquier orden una vez que el DataFrame está cargado.
+El proyecto se organiza como un pipeline modular de ocho fases. Las fases 0 a 2 son obligatorias siempre; las fases 3 a 7 pueden ejecutarse en cualquier orden una vez que el DataFrame limpio (`df_limpio`) está disponible.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  Fase I   — Configuración       Celdas 1, 2, 3, 4               │
-│  Fase II  — Carga de datos      Celdas 7 / 7b / 7c              │
-│  Fase III — Análisis inicial    Celdas 8 → 14                   │
-│  Fase IV  — Visualizaciones     Celdas 15 → 20                  │
-│  Fase V   — Análisis avanzados  Celdas 21 → 25                  │
-│  Fase VI  — Análisis temporal   Celdas 27 → 31                  │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│  Fase 0 — Configuración               Instalación + imports      │
+│  Fase 1 — Carga de datos              Excel (Google Drive)       │
+│  Fase 2 — Control de calidad          Excepciones + duplicados   │
+│  Fase 3 — Análisis descriptivos       Frecuencias, heatmap, etc. │
+│  Fase 4 — Análisis temporales         Picos, períodos, evolución │
+│  Fase 5 — Perfil editorial y redes    Shannon, co-ocurrencia     │
+│  Fase 6 — Motor gráfico unificado     19 tipos de análisis       │
+│  Fase 7 — Bases adicionales           Otros años / períodos      │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-> **Nota:** Las celdas 5 y 6 (scraping y exportación web) son opcionales y solo se usan si se desea recolectar datos nuevos en tiempo real. Para trabajar con archivos Excel ya existentes, se saltean por completo.
+A diferencia de un pipeline de scraping en vivo, este proyecto parte de **datos ya codificados manualmente** por el equipo de investigación: cada fila de la base representa una nota periodística ya clasificada según dinámica conflictual, actores, formato de acción, demanda y participación. Esto elimina la necesidad de clasificadores automáticos por regex (como en un proyecto de scraping puro) y desplaza el foco metodológico hacia el **control de calidad del corpus codificado** y el **análisis descriptivo/temporal** de las categorías ya asignadas.
 
-La **unidad de análisis** es el titular periodístico. Esta decisión metodológica responde a que el titular condensa el encuadre editorial de la nota: es el elemento que más influye en la percepción del lector y el que los medios cuidan con mayor deliberación. Analizar titulares en lugar del cuerpo completo permite mayor velocidad de procesamiento y comparabilidad entre medios con distintos estilos de escritura.
+La **unidad de análisis** es la nota periodística codificada, identificada por su `Título` y su `Link`. El corpus cubre múltiples diarios de la provincia de Córdoba y un período extenso (2012–2026, según la base cargada), lo que permite tanto cortes sincrónicos (perfil por diario en un año) como diacrónicos (evolución de dinámicas o actores a través del tiempo).
 
-El esquema de columnas del DataFrame unificado es el siguiente:
+---
+
+## 2. Esquema de columnas de la base
 
 | Columna | Tipo | Descripción |
 |---|---|---|
-| `fecha_scraping` | `datetime` | Fecha de publicación o recolección |
-| `diario` | `str` | Identificador del medio |
-| `titular` | `str` | Texto del titular de la noticia |
-| `url_noticia` | `str` | Enlace a la nota completa |
-| `palabras_clave` | `str` | Lista de KW laborales separadas por coma |
-| `n_palabras_clave` | `int` | Cantidad de KW únicas en el titular |
-| `categoria` | `str` | Categoría temática asignada |
-| `longitud_titular` | `int` | Longitud en caracteres del titular |
-| `archivo_origen` | `str` | Nombre del Excel fuente (en carga múltiple) |
+| `Link` | `str` | URL de la nota original |
+| `Palabras` | `str` | Palabra(s) clave que motivó la inclusión de la nota en el corpus |
+| `Título` | `str` | Titular de la noticia (unidad de análisis) |
+| `Contenido` | `str` | Cuerpo de la nota (cuando está disponible) |
+| `Fecha` | `datetime` | Fecha de publicación |
+| `Mes` / `Año` | `str` / `int` | Mes y año derivados de `Fecha` |
+| `Diario` | `str` | Medio que publicó la nota |
+| `Pertenencia Sectorial` | `str` | Público / Privado / Mixto / Multisectorial / etc. |
+| `Código DC` / `Dinámica Conflictual` | `str` | Clasificación temática del conflicto |
+| `Sector` / `Sub sector` | `str` | Rama de actividad económica |
+| `Organización detallada` / `Organización Agregada` | `str` | Actor(es) laboral(es) mencionados |
+| `Departamento` | `str` | Departamento de la provincia donde ocurre el hecho |
+| `Antagonista` / `Actor Estatal` / `Nivel de Gobierno` | `str` | Contraparte del conflicto |
+| `Iniciativa Estado` / `Resp. Estado` | `str` | Rol del Estado en el conflicto |
+| `Participación` | `str` | Nivel de involucramiento de lxs trabajadorxs (base, conducción, ambos) |
+| `Demanda princ. Abierta` / `Demanda principal agrupada` | `str` | Reclamo central de la acción |
+| `Formato principal` / `Formato agregado` / `Tipo Formato AC` | `str` | Tipo de acción (directa/indirecta, paro, movilización, etc.) |
+
+> **Nota:** los nombres de columna pueden variar levemente entre archivos de distintos años (espacios sobrantes, mayúsculas). La Fase 1 y la Fase 7 incluyen normalización automática para evitar errores por este motivo.
 
 ---
 
-## 2. Flujo de trabajo sin scraping
+## Fase 0 — Configuración
 
-Si ya se dispone de archivos `.xlsx` históricos, el flujo de ejecución se reduce a:
+### Instalación de dependencias
 
-```
-Celda 1 → Celda 2 → Celda 3 → Celda 4 → Celda 7b → Celda 8 → ...
-```
+**Descripción.** Instala `networkx` y `wordcloud`, las únicas librerías no incluidas por defecto en Colab que usa el proyecto (`pandas`, `numpy`, `matplotlib` y `seaborn` ya vienen preinstaladas).
 
-Las celdas 5 y 6 se omiten. La celda 7b reemplaza al scraper como punto de entrada de datos. La función `enriquecer_dataframe()` de la celda 4 actúa como capa de compatibilidad: detecta qué columnas calculadas faltan en el Excel y las genera automáticamente, garantizando que todos los análisis posteriores funcionen independientemente del formato de origen.
+**Uso.** Se ejecuta una sola vez por sesión de Colab, al reiniciar el entorno debe correrse de nuevo.
 
----
+**Interpretación.** No produce salida analítica. Un error de instalación bloqueará las celdas de la Fase 5 que dependen de `networkx` (red de co-ocurrencia) y de la Fase 3 que depende de `wordcloud` (nube de palabras).
 
-## Fase I — Configuración
-
-### Celda 1 — Instalación de dependencias
-
-**Descripción.** Instala todas las librerías necesarias mediante `pip`. La lista incluye `requests`, `beautifulsoup4`, `pandas`, `matplotlib`, `seaborn`, `wordcloud`, `cloudscraper`, `openpyxl` y `networkx`. Se ejecuta una sola vez por entorno de Colab; al reiniciar el runtime debe correrse nuevamente.
-
-**Uso.** Debe ejecutarse antes que cualquier otra celda. En entornos donde las librerías ya están instaladas (como un ambiente conda local), puede omitirse. `openpyxl` es el motor de lectura/escritura de archivos `.xlsx` para pandas y es indispensable para la carga de datos históricos.
-
-**Interpretación.** No produce salida analítica. Si alguna instalación falla, la celda imprimirá el error y las celdas siguientes que dependan de esa librería lanzarán un `ImportError`. En ese caso, instalar el paquete faltante de forma aislada antes de continuar.
-
-**Justificación.** La explicitación de dependencias en una celda separada es una práctica estándar de reproducibilidad en ciencia de datos. Permite que cualquier colaborador o revisor pueda replicar el entorno sin conocimiento previo del proyecto, siguiendo el principio de *literate programming* (Knuth, 1984).
+**Justificación.** Explicitar dependencias en una celda separada es una práctica estándar de reproducibilidad (Knuth, 1984): permite a cualquier colaborador replicar el entorno de análisis sin conocimiento previo del proyecto.
 
 ---
 
-### Celda 2 — Importaciones
+## Fase 1 — Carga de datos
 
-**Descripción.** Centraliza todos los `import` del proyecto. Incluye las librerías estándar (`re`, `time`, `random`, `io`, `itertools`) y las de terceros (`pandas`, `numpy`, `matplotlib`, `seaborn`, `BeautifulSoup`, `cloudscraper`, `wordcloud`, `networkx`). También importa `files` de `google.colab` para la carga y descarga de archivos.
+**Descripción.** Monta Google Drive, lee el archivo Excel de la base (`pd.read_excel`) especificando la hoja correcta, limpia espacios sobrantes en los nombres de columna con `str.strip()`, y parsea `Fecha` a formato `datetime` con `dayfirst=True`.
 
-**Uso.** Al igual que la celda 1, debe ejecutarse antes que cualquier otra. Si se trabaja sin scraping, los imports de `requests`, `cloudscraper` y `BeautifulSoup` no se utilizarán pero tampoco generan errores si están instalados.
+**Uso.** Es la celda de entrada obligatoria del pipeline. Requiere ajustar `RUTA_ARCHIVO` y `NOMBRE_HOJA` según el archivo real en el Google Drive del investigador.
 
-**Interpretación.** No produce salida analítica. Un error en esta celda indica que una librería no está instalada o que hay un conflicto de versiones.
+**Interpretación.** `df.info()` confirma que `Fecha` quedó tipada como `datetime64` (no como texto) y muestra la cantidad de valores nulos por columna, lo que permite detectar de entrada columnas con codificación incompleta.
 
-**Justificación.** Agrupar todos los imports al inicio del notebook es una convención de estilo en Python (PEP 8) y facilita la auditoría de dependencias. Evita el antipatrón de importar librerías dentro de funciones o a mitad del notebook, lo que dificulta el rastreo de errores.
-
----
-
-### Celda 3 — Expresiones regulares y categorías
-
-**Descripción.** Define dos estructuras centrales del proyecto: la expresión regular `PALABRAS_CLAVES` (más de 80 patrones de términos laborales compilados con `re.IGNORECASE`) y el diccionario `CATEGORIAS` (ocho categorías temáticas, cada una con su propio patrón regex). También define el pool `USER_AGENTS` con agentes de navegador reales para rotación anti-bloqueo en el scraper.
-
-**Uso.** Estas estructuras son referenciadas por prácticamente todas las celdas posteriores. `PALABRAS_CLAVES` es el filtro principal que determina qué noticias ingresan al corpus. `CATEGORIAS` es el clasificador temático que asigna cada noticia a una de las ocho categorías. Ambos pueden modificarse para ajustar la sensibilidad del filtro o agregar nuevas categorías sin tocar el resto del código.
-
-**Interpretación.** El diccionario `CATEGORIAS` define la taxonomía temática del proyecto. Las categorías actuales son: `huelga_paro`, `cortes_moviliz`, `sindicatos`, `salarios`, `despidos_cierre`, `economia_popular`, `docentes` y `desempleo`. La categoría `otra` se asigna automáticamente cuando ningún patrón coincide. La asignación es por **primera coincidencia**: si un titular activa dos categorías, se asigna la primera en el orden del diccionario.
-
-**Justificación.** El uso de expresiones regulares como instrumento de filtrado es una técnica de *text mining* apropiada cuando el vocabulario del dominio es acotado y conocido de antemano, como ocurre con la terminología laboral y sindical argentina. A diferencia de modelos de lenguaje, las regex son deterministas, auditables y no requieren datos de entrenamiento, lo que las hace metodológicamente transparentes para investigación en ciencias sociales.
+**Justificación.** El formato `.xlsx` fue elegido porque preserva estructura de hojas múltiples (útil cuando la base separa datos por año o por tipo de análisis, como se vio en la base original con las hojas "Púb y Priv", "Participación" y "Base"), y es directamente auditable por el equipo de investigación sin herramientas adicionales.
 
 ---
 
-### Celda 4 — Funciones auxiliares
+## Fase 2 — Control de calidad del corpus
 
-**Descripción.** Define las tres funciones que requieren todas las celdas de análisis cuando se trabaja sin scraping:
+**Descripción.** Aplica dos mecanismos de limpieza independientes sobre `Título`:
 
-- `clasificar_noticia(texto)`: aplica el diccionario `CATEGORIAS` sobre un titular y devuelve la primera categoría coincidente o `"otra"`.
-- `calcular_n_palabras_clave(texto_kw)`: cuenta los términos no vacíos en la columna `palabras_clave` (separados por coma).
-- `enriquecer_dataframe(df)`: función principal de compatibilidad. Detecta qué columnas calculadas faltan en el DataFrame cargado (`palabras_clave`, `categoria`, `n_palabras_clave`, `longitud_titular`) y las genera aplicando las funciones anteriores. Es **idempotente**: si la columna ya existe, no la modifica.
+- **A) Excepciones (falsos positivos):** un diccionario de expresiones regulares agrupadas por categoría (`cortes_servicios`, `trabajo_obra`, `paro_medico`, etc.) detecta títulos que activarían un filtro laboral por ambigüedad léxica (ej. "corte de luz" vs. "corte de ruta"), pero que en realidad no corresponden a conflictividad laboral.
+- **B) Similitud de Jaccard:** compara pares de títulos publicados por distintos diarios en una ventana de ±1 día, y marca como potencial "mismo evento" a aquellos con una similitud léxica igual o mayor a un umbral configurable (0.6 por defecto).
 
-**Uso.** `enriquecer_dataframe(df)` debe llamarse al final de la celda de carga (7 o 7b), antes de cualquier análisis. Las otras dos funciones son auxiliares internas pero pueden llamarse directamente si se necesita recalcular valores en forma puntual.
+**Uso.** `limpiar_corpus(df)` se ejecuta una vez, inmediatamente después de la carga, y genera tres salidas: `df_limpio` (corpus depurado de falsos positivos), `df_falsos` (registro de lo descartado, para auditoría) y `df_duplicados` (pares de notas que cubren el mismo evento, que **no se eliminan automáticamente**, quedando a criterio del investigador si se conservan para análisis de agenda comparada entre medios).
 
-**Interpretación.** La salida de `enriquecer_dataframe()` incluye un log de qué columnas se generaron y cuáles ya existían, lo que permite verificar que el Excel de origen tiene el formato esperado. Si todas las columnas ya existen, el log indicará que no se realizó ningún cambio.
+**Interpretación.** El resumen impreso por `limpiar_corpus()` indica cuántos falsos positivos se descartaron y por qué excepción, y cuántos pares de duplicados semánticos se detectaron. Un número alto de falsos positivos en una categoría específica sugiere que el corpus original tiene sesgo hacia ese tipo de ambigüedad léxica y que el diccionario de excepciones podría necesitar ajustes adicionales.
 
-**Justificación.** La separación entre funciones de scraping y funciones de análisis responde al principio de responsabilidad única (*Single Responsibility Principle*). Las funciones auxiliares de esta celda son las únicas que deben ejecutarse obligatoriamente en el flujo sin scraping, evitando que el usuario deba entender el funcionamiento del extractor web para poder usar el análisis.
-
----
-
-## Fase II — Carga de datos desde Excel
-
-### Celda 7 — Cargar un único archivo Excel
-
-**Descripción.** Abre el selector de archivos de Google Colab mediante `files.upload()`, lee el archivo `.xlsx` seleccionado con `pd.read_excel(engine="openpyxl")` y normaliza la columna de fecha a tipo `datetime` con `pd.to_datetime(dayfirst=True, errors="coerce")`. Imprime dimensiones, columnas y rango temporal como verificación inmediata.
-
-**Uso.** Indicada cuando se dispone de un único archivo de datos ya consolidado. Si los datos de distintos períodos o diarios están en archivos separados, usar la celda 7b. Después de esta celda, ejecutar `df = enriquecer_dataframe(df)` (definida en celda 4) antes de continuar con los análisis.
-
-**Interpretación.** Si el rango de fechas impreso no coincide con el período esperado, puede haber filas con fechas mal formateadas que `errors="coerce"` convirtió en `NaT`. Verificar con `df["fecha_scraping"].isna().sum()` cuántas filas quedaron sin fecha válida.
-
-**Justificación.** El formato `.xlsx` fue elegido como formato de trabajo en lugar de `.csv` porque preserva tipos de datos (fechas, números) sin necesidad de especificar `dtype` manualmente, es compatible de forma nativa con Excel para revisión manual de los datos, y soporta múltiples hojas para organizar datasets por período o diario.
+**Justificación.** A diferencia de un corpus generado por scraping (donde el filtro de ingreso es un regex de palabras clave sobre texto libre), esta base ya fue codificada manualmente por el equipo de investigación. El control de calidad aquí cumple una función distinta: auditar la consistencia del corpus codificado (fechas, duplicados entre fuentes, columnas vacías) más que filtrar contenido no laboral, que en principio ya fue descartado en el proceso de codificación manual. El test de calidad pre/post (`test_calidad_corpus()`) cuantifica explícitamente el impacto de la limpieza sobre: registros totales, duplicados exactos y por `Link`, fechas no parseables o fuera de rango (2012–2026), inconsistencias entre `Año` y el año real de `Fecha`, links con formato inválido, y celdas vacías o con placeholders (`"sin datos"`, `"s/d"`) en `Dinámica Conflictual`.
 
 ---
 
-### Celda 7b — Cargar múltiples archivos Excel
+## Fase 3 — Análisis descriptivos
 
-**Descripción.** Permite seleccionar varios archivos `.xlsx` simultáneamente (por ejemplo, `marzo.xlsx`, `abril.xlsx`, `mayo.xlsx`). Para cada archivo, usa `io.BytesIO` para leer los bytes subidos sin necesidad de guardarlos en disco. Agrega la columna `archivo_origen` con el nombre del archivo fuente. Al final concatena todos los fragmentos con `pd.concat()` y elimina duplicados exactos basándose en la combinación `titular + diario + fecha_scraping`.
+**Descripción.** Conjunto de análisis exploratorios básicos sobre `df_limpio`: vista general (`info()`), frecuencia por `Diario`, frecuencia por `Dinámica Conflictual` con tabla cruzada Diario × Dinámica, serie temporal simple por fecha, heatmap, nube de palabras extraída de `Título`, y resumen ejecutivo con las métricas centrales del corpus.
 
-**Uso.** Es la celda de entrada estándar cuando se trabaja con datos históricos distribuidos en múltiples archivos. El proceso de unificación es:
+**Uso.** Se ejecuta como primer paso analítico tras la limpieza, antes de cualquier análisis avanzado. No requiere parámetros: opera directamente sobre `df_limpio`.
 
-```
-marzo.xlsx  →  DataFrame A  ─┐
-abril.xlsx  →  DataFrame B  ─┼─ pd.concat() ─→ DataFrame unificado ─→ drop_duplicates() ─→ df
-mayo.xlsx   →  DataFrame C  ─┘
-```
+**Interpretación.** Una distribución muy desigual entre diarios (uno con más del 50% del corpus) indica que los análisis comparativos posteriores estarán sesgados hacia ese medio y conviene normalizar por proporción antes de comparar. La categoría (`Dinámica Conflictual`) dominante refleja qué tipo de conflicto tuvo mayor visibilidad mediática en el período — lo que no necesariamente coincide con su frecuencia real en la sociedad, sino con las decisiones editoriales de cobertura.
 
-Después de esta celda, ejecutar `df = enriquecer_dataframe(df)`.
-
-**Interpretación.** La diferencia entre "Total filas" y "Dataset final" en el log indica el nivel de solapamiento entre archivos: noticias que aparecen en más de un Excel con el mismo titular, diario y fecha. Un solapamiento alto (mayor al 20%) sugiere que los archivos se generaron con períodos superpuestos y deben revisarse para evitar contar eventos dobles en los análisis temporales.
-
-**Justificación.** La deduplicación por `titular + diario + fecha` es más precisa que por URL o por título solo, porque el mismo evento puede tener variaciones mínimas en el titular entre ediciones o entre archivos generados en distintos momentos del día. El uso de `io.BytesIO` evita escribir archivos temporales en el disco de Colab, lo que mejora el rendimiento en entornos con almacenamiento limitado.
+**Justificación.** El análisis exploratorio inicial (EDA) es un requisito metodológico antes de interpretar cualquier resultado (Tukey, 1977). El volumen diferencial entre fuentes es uno de los sesgos más comunes en análisis de medios comparado (Neuendorf, 2017), y explicitarlo desde el comienzo permite tomar decisiones metodológicas conscientes sobre normalización.
 
 ---
 
-### Celda 7c — Diagnóstico de columnas
+## Fase 4 — Análisis temporales avanzados
 
-**Descripción.** Celda opcional de diagnóstico previo a la carga. Lee solo la primera fila (`nrows=0`) de cada archivo subido para obtener los nombres de columna sin cargar el dataset completo. Imprime la lista de columnas de cada archivo para que el investigador pueda verificar inconsistencias antes de ejecutar la celda 7b.
+**Descripción.** Incluye seis análisis: (1) evolución de notas por día/semana/mes con media móvil de 7 días y composición mensual por dinámica conflictual (área apilada); (2) comparación de métricas entre dos períodos definidos por una `FECHA_CORTE` configurable; (3) detección automática de picos de conflictividad (días con notas > media + N·σ); (4) evolución mensual de las organizaciones más mencionadas, con heatmap organización × mes; (5) clasificación y evolución de acciones directas vs. indirectas a partir de `Formato agregado`.
 
-**Uso.** Recomendada cuando se trabajan con archivos generados en distintos momentos o por distintas personas, donde los nombres de columna pueden variar (`Titulo` vs `titular`, `Fecha` vs `fecha`). Si se detectan diferencias, ajustar el diccionario `MAPA_COLUMNAS` de la celda 26 antes de ejecutar la carga completa.
+**Uso.** Todas las funciones aceptan `año_inicio` y `año_fin` como parámetros, lo que permite acotar el análisis a cualquier ventana temporal de la base (por ejemplo, comparar 2023–2024 vs. 2025–2026). La comparación de períodos requiere además indicar la `FECHA_CORTE` correspondiente a un evento de interés (cambio de gestión, paro general, reforma laboral).
 
-**Interpretación.** Si todos los archivos muestran las mismas columnas, la carga unificada funcionará sin problemas. Si hay diferencias, el log indicará exactamente qué columnas difieren entre archivos, permitiendo corregir el mapa de normalización de forma quirúrgica.
+**Interpretación.** Un pico de conflictividad con alta concentración en una sola `Dinámica Conflictual` y un solo `Diario` sugiere un evento sectorial cubierto en profundidad por ese medio; un pico distribuido entre múltiples dinámicas y diarios sugiere un evento de impacto amplio (paro general, medida de política económica). En la comparación de períodos, un aumento significativo de "notas por día" en el período posterior a la fecha de corte indica que el evento de referencia intensificó la cobertura de conflictividad laboral.
 
-**Justificación.** En proyectos colaborativos o longitudinales es común que el esquema de datos evolucione con el tiempo. Un diagnóstico rápido antes de la carga evita que errores de columnas propaguen valores nulos silenciosos a lo largo de todo el análisis posterior.
-
----
-
-## Fase III — Análisis estadístico inicial
-
-### Celda 8 — Vista general del dataset
-
-**Descripción.** Ejecuta una inspección diagnóstica inicial del DataFrame mediante `df.info()` y `df.describe()`. Muestra el tipo de dato de cada columna, la cantidad de valores no nulos y las estadísticas descriptivas básicas (media, desvío estándar, mínimo, máximo y cuartiles) de las variables numéricas `n_palabras_clave` y `longitud_titular`. También imprime un reporte de valores nulos por columna.
-
-**Uso.** Debe ejecutarse siempre como primer paso tras `enriquecer_dataframe()`. Permite detectar columnas con valores faltantes, tipos de datos incorrectos o rangos anómalos antes de realizar cualquier análisis.
-
-**Interpretación.** Si `n_palabras_clave` tiene una media muy baja (cercana a 1), el filtro de palabras clave está siendo muy selectivo o los titulares son muy cortos. Un valor máximo mayor a 10 indica noticias extremadamente densas, probablemente notas de síntesis. La columna `longitud_titular` no debe tener ceros: si los hay, hay registros con titulares vacíos que deben limpiarse antes de continuar.
-
-**Justificación.** En cualquier investigación basada en datos, el análisis exploratorio inicial (*EDA*) es un requisito metodológico antes de interpretar resultados. Omitir este paso puede llevar a conclusiones erróneas si el dataset contiene ruido, duplicados no detectados o valores atípicos que distorsionen los promedios posteriores (Tukey, 1977).
+**Justificación.** El diseño pre-post es el más simple de los diseños cuasi-experimentales en ciencias sociales: no permite establecer causalidad, pero sí documentar covariación temporal entre un evento y la cobertura mediática, pregunta central en estudios de agenda-setting en contextos de cambio político (McCombs & Shaw, 1972). La detección estadística de picos evita depender exclusivamente del conocimiento previo del investigador sobre el período (Tarrow, 2011).
 
 ---
 
-### Celda 9 — Frecuencia por diario
+## Fase 5 — Perfil editorial, redes y actores
 
-**Descripción.** Calcula cuántas noticias aportó cada medio mediante `value_counts()` y expresa ese conteo también como proporción porcentual sobre el total del corpus. Responde a la pregunta: ¿qué diario cubre más la conflictividad laboral en términos absolutos y relativos?
+**Descripción.** Cuatro análisis que caracterizan la cobertura por diario y por actor: (1) perfil temático por diario (distribución porcentual de `Dinámica Conflictual` normalizada por fila, visualizada como barras apiladas al 100%); (2) red de co-ocurrencia de palabras extraídas de `Título` usando NetworkX, con umbral de frecuencia configurable; (3) índice de diversidad temática por diario mediante entropía de Shannon sobre `Dinámica Conflictual`; (4) ranking de organizaciones más mencionadas (`Organización detallada` u `Organización Agregada`), con conteo de en cuántos diarios distintos aparece cada una.
 
-**Uso.** Sirve como línea de base para todos los análisis comparativos entre medios. Antes de interpretar cualquier diferencia entre diarios es indispensable saber si esa diferencia responde a un encuadre editorial real o simplemente a que ese diario aporta más noticias al corpus.
+**Uso.** El perfil editorial y la diversidad Shannon operan sobre la misma tabla cruzada Diario × Dinámica Conflictual, por lo que conviene interpretarlos en conjunto: el perfil muestra *qué* cubre cada diario, la entropía resume *cuán concentrada o dispersa* es esa cobertura en un único número comparable. La red de co-ocurrencia y el ranking de organizaciones aceptan `año_inicio`/`año_fin` para acotar el período de análisis.
 
-**Interpretación.** Una distribución muy desigual (un diario con más del 50% del corpus) indica que los análisis posteriores estarán sesgados hacia ese medio. En ese caso conviene normalizar por diario antes de comparar. Si un diario esperado aparece con muy pocas noticias, puede indicar que ese medio efectivamente cubre poco el mundo laboral en el período analizado, o que hubo problemas en la recolección de datos.
+**Interpretación.** Un diario con entropía cercana al máximo teórico (`log₂(n_dinámicas)`) cubre todos los tipos de conflicto con frecuencias similares; un diario con entropía baja concentra su cobertura en pocas dinámicas conflictuales. En la red de co-ocurrencia, un nodo con alta centralidad de grado es un término que aparece en contextos variados dentro de los títulos — es decir, es conceptualmente central en el discurso periodístico del corpus.
 
-**Justificación.** El volumen diferencial entre fuentes es uno de los sesgos más comunes en el análisis de medios. Explicitarlo desde el comienzo permite al investigador tomar decisiones metodológicas conscientes: si trabajar con valores absolutos, proporciones, o realizar análisis estratificados por diario. La normalización por fuente es un requisito metodológico estándar en investigación comparada de medios (Neuendorf, 2017).
-
----
-
-### Celda 10 — Frecuencia por categoría temática
-
-**Descripción.** Aplica `value_counts()` sobre la columna `categoria` para contar cuántas noticias corresponden a cada tipo de conflicto laboral. Complementariamente genera una tabla cruzada `pd.crosstab(diario, categoria)` que cruza ambas dimensiones en simultáneo, produciendo una matriz de frecuencias absolutas.
-
-**Uso.** Permite responder dos preguntas: ¿qué tipo de conflicto laboral tiene más cobertura en general? ¿Y en cada diario particular? La tabla cruzada es el insumo directo para el heatmap de la celda 17 y para el análisis de perfil editorial de la celda 21.
-
-**Interpretación.** La categoría dominante refleja qué tipo de conflicto es más visible mediáticamente en el período analizado, lo que no necesariamente coincide con cuál es más frecuente en la realidad social. Una alta frecuencia de `salarios` puede indicar un período de paritarias; una alta frecuencia de `despidos_cierre` puede coincidir con ajuste económico. La tabla cruzada revela especializaciones editoriales: si un diario concentra el 70% de sus noticias en `economia_popular`, tiene una línea editorial más atenta a ese sector.
-
-**Justificación.** La clasificación temática es la operacionalización del concepto de *agenda mediática*: el conjunto de temas que los medios priorizan en un período dado. Comparar la agenda por diario permite realizar análisis de agenda-setting, marco teórico central en los estudios de comunicación política y social desde McCombs y Shaw (1972).
+**Justificación.** La normalización por fila en el perfil editorial es metodológicamente necesaria para eliminar el efecto tamaño entre diarios (Breed, 1955). La entropía de Shannon es el indicador estándar de diversidad en teoría de la información (Shannon, 1948), con ventajas sobre medidas más simples como el índice de Herfindahl porque es sensible tanto a la distribución de frecuencias como al número de categorías posibles. El análisis de redes semánticas permite identificar la estructura implícita del discurso periodístico sobre conflictividad laboral (Manning & Schütze, 1999).
 
 ---
 
-### Celda 11 — Evolución temporal simple
+## Fase 6 — Motor gráfico unificado
 
-**Descripción.** Agrupa las noticias por fecha con `groupby("fecha_scraping").size()` para obtener una serie temporal diaria. Calcula el promedio diario, la desviación estándar y los días con mayor y menor actividad informativa. Opera sobre el DataFrame completo (histórico + actual).
+**Descripción.** Un sistema de dos capas: (1) la función genérica `graficar()`, que construye tablas dinámicas Período × Categoría a partir de cualquier columna de la base y las visualiza como barras apiladas (verticales u horizontales), líneas, o barras apiladas al 100%; (2) siete funciones especializadas para los análisis que no se reducen a una simple tabla dinámica (red de co-ocurrencia, diversidad Shannon, organizaciones, evolución de organizaciones, picos, comparación de períodos, directa vs. indirecta). Ambas capas se integran en `menu_graficos()`, un menú interactivo de 19 opciones que reproduce los gráficos de referencia del proyecto y agrega los análisis nuevos, todos bajo una misma interfaz de parámetros.
 
-**Uso.** Es la introducción al análisis temporal. Brinda una primera visión de si la cobertura laboral es estable o fluctúa significativamente en el tiempo. Sus resultados contextualizan todos los análisis de noticias vs. tiempo de las celdas 27 a 29.
+**Uso.** Se ejecuta `menu_graficos(df_limpio)` y el sistema solicita, por consola: qué análisis generar, la granularidad temporal (año/trimestre/mes), el rango de años, y —según el análisis elegido— parámetros adicionales (top N de categorías, tipo de valores absolutos/porcentuales, umbral de co-ocurrencia, fecha de corte). Puede volver a ejecutarse tantas veces como gráficos distintos se necesiten en una misma sesión.
 
-**Interpretación.** Un promedio diario estable con poca varianza indica una cobertura rutinaria del mundo laboral. Picos abruptos señalan eventos extraordinarios (paros nacionales, conflictos sectoriales, medidas de gobierno). La diferencia entre el día más activo y el menos activo es un indicador de la volatilidad del fenómeno en el período estudiado.
+**Interpretación.** Cada gráfico generado corresponde exactamente a una configuración reproducible de filtro + columna + período, lo que facilita documentar en un informe metodológico exactamente qué subconjunto de datos originó cada visualización — un requisito de transparencia particularmente relevante cuando se comparan resultados entre distintos cortes temporales del mismo corpus.
 
-**Justificación.** La dimensión temporal es inseparable del análisis de conflictividad laboral. Los conflictos no son estáticos: emergen, escalan y se resuelven. Sin una perspectiva temporal no es posible distinguir si un aumento de noticias refleja un conflicto nuevo o simplemente un mayor seguimiento editorial de un conflicto preexistente (Tarrow, 2011).
-
----
-
-### Celda 12 — Análisis de palabras clave individuales
-
-**Descripción.** Expande la columna `palabras_clave` (listas separadas por coma) en una Serie plana con una entrada por término usando `str.split().explode()`. Calcula las 20 palabras clave más frecuentes en todo el corpus y la riqueza léxica total (cantidad de términos únicos).
-
-**Uso.** Permite identificar cuáles son los conceptos laborales más utilizados en los titulares durante el período. No mide qué temas son más frecuentes (eso lo hace la categoría), sino qué términos exactos predominan dentro del lenguaje periodístico sobre trabajo.
-
-**Interpretación.** Si `trabajo` o `trabajadores` encabeza el ranking, el corpus es semánticamente genérico. Si `paro` o `despidos` están en los primeros puestos, la cobertura está dominada por conflictos activos. Términos como `paritarias` o `aguinaldo` en posiciones altas son indicadores de períodos de negociación salarial. La riqueza léxica mide la diversidad del vocabulario laboral: un valor bajo indica que pocos términos concentran la cobertura.
-
-**Justificación.** El análisis de frecuencia léxica es una técnica estándar de la lingüística de corpus y el análisis crítico del discurso (Fairclough, 1989). En estudios de medios, la frecuencia con que aparece un término es un indicador de su centralidad en la agenda y de su naturalización como forma de nombrar la realidad social.
+**Justificación.** Centralizar la lógica de graficado en un único motor parametrizable, en lugar de escribir una celda de código distinta por cada gráfico, reduce la duplicación y minimiza el riesgo de inconsistencias entre visualizaciones que deberían ser comparables entre sí (por ejemplo, dos gráficos de la misma dinámica conflictual en distintos períodos, generados con lógicas de filtrado sutilmente distintas).
 
 ---
 
-### Celda 13 — Intensidad de cobertura
+## Fase 7 — Carga de bases adicionales
 
-**Descripción.** Analiza la variable `n_palabras_clave` como proxy de la densidad temática de cada noticia. Calcula su distribución estadística con `describe()` e identifica las noticias de alta densidad (aquellas con 3 o más palabras clave distintas), imprimiéndolas en tabla junto con su diario y categoría.
+**Descripción.** Permite incorporar archivos `.xlsx` correspondientes a otros años o períodos no cubiertos por la base principal. Normaliza los nombres de columna contra un diccionario de variantes conocidas (`MAPA_COLUMNAS_PROYECTO`), verifica la presencia de columnas mínimas (`Título`, `Fecha`, `Diario`), parsea fechas, y concatena el resultado con la base original, eliminando duplicados exactos por `Título` + `Diario` + `Fecha`.
 
-**Uso.** Las noticias de alta densidad son las más relevantes para el análisis cualitativo posterior: concentran múltiples dimensiones de la conflictividad laboral en un solo titular. Sirven como muestra estratégica para revisión manual o para entrenar modelos de clasificación más finos.
+**Uso.** Se ejecuta después de la Fase 1 y antes de la Fase 2, para que el corpus combinado completo pase por el control de calidad de una sola vez. Soporta la carga de múltiples archivos en una misma ejecución, y pregunta interactivamente qué hoja usar cuando un archivo tiene más de una.
 
-**Interpretación.** Una noticia con 5 palabras clave como `paro`, `sindicato`, `salario`, `huelga` y `CGT` articula múltiples dimensiones del conflicto laboral en un titular, lo que indica mayor profundidad informativa o mayor complejidad del evento cubierto. La distribución esperada es asimétrica hacia la derecha: la mayoría de las noticias tendrán 1–2 palabras clave y unas pocas concentrarán muchas más.
+**Interpretación.** El log de la celda indica cuántas filas se incorporaron desde cada archivo adicional y cuántos duplicados se eliminaron al combinar con la base original — un solapamiento alto entre archivos sugiere que los períodos de cobertura se superponen y conviene revisar los rangos de fecha de cada fuente antes de dar por buena la unificación.
 
-**Justificación.** No todas las noticias que contienen una palabra clave laboral son igualmente relevantes. La densidad de palabras clave es una forma computacionalmente simple de aproximarse a esa distinción sin necesidad de lectura manual de cada nota, aplicando el principio de relevancia diferencial en el análisis de contenido (Krippendorff, 2018).
-
----
-
-### Celda 14 — Co-ocurrencia de palabras clave
-
-**Descripción.** Construye todos los pares posibles de palabras clave que aparecen juntas en el mismo titular usando `itertools.combinations`. Cuenta la frecuencia de cada par con `Counter` y muestra los 15 pares más frecuentes. Esta versión textual es la base de la red de la celda 22.
-
-**Uso.** Revela qué conceptos laborales tienden a aparecer juntos en los titulares, lo que indica asociaciones semánticas estables en el discurso periodístico. Es un primer paso hacia el análisis de redes sin necesidad de visualización gráfica.
-
-**Interpretación.** Un par muy frecuente como `paro + sindicato` indica que los medios raramente cubren un paro sin mencionar al actor sindical que lo convoca: hay una asociación narrativa consolidada. Un par como `despido + crisis` sugiere un encuadre económico de las reestructuraciones laborales. Pares inesperados o infrecuentes pueden ser puntos de entrada para el análisis cualitativo.
-
-**Justificación.** El análisis de co-ocurrencia es una técnica de lingüística distribucional que parte del principio de que el significado de una palabra se define por las palabras con las que habitualmente aparece (Firth, 1957). En análisis de medios, permite identificar los *frames* con que los periodistas estructuran los eventos laborales.
-
----
-
-## Fase IV — Visualizaciones
-
-### Celda 15 — Gráficos de categoría y diario
-
-**Descripción.** Genera un panel de dos gráficos de barras: uno horizontal con la frecuencia de noticias por categoría temática (ordenado de mayor a menor) y uno vertical con la frecuencia por diario. Son las visualizaciones directas de los conteos calculados en las celdas 9 y 10.
-
-**Uso.** Son los gráficos de presentación más básicos del proyecto, adecuados para informes o presentaciones como síntesis del corpus. Permiten comunicar de forma inmediata cuál es la categoría dominante y qué medio es el más activo, sin necesidad de leer tablas numéricas.
-
-**Interpretación.** La orientación horizontal del gráfico de categorías facilita la lectura de etiquetas largas y permite ordenar de mayor a menor sin saturar el eje. En el gráfico de diarios, diferencias muy marcadas en la altura de las barras indican que el corpus no está balanceado entre fuentes.
-
-**Justificación.** La visualización de frecuencias es el estándar de comunicación en ciencias sociales computacionales. El uso de barras horizontales para categorías nominales con etiquetas largas sigue las recomendaciones de diseño de Tufte (1983) y Cairo (2016) para maximizar la legibilidad sin sacrificar información.
-
----
-
-### Celda 16 — Serie temporal de noticias por día
-
-**Descripción.** Grafica la serie diaria de noticias como una línea con área rellena. Superpone una media móvil de 7 días calculada con `rolling(7)` que suaviza el ruido del ciclo semanal (los fines de semana los diarios publican menos).
-
-**Uso.** Es la visualización temporal básica del corpus. Permite detectar si hay períodos de alta actividad informativa sostenida o si los picos son eventos puntuales. La media móvil separa la tendencia del ruido cotidiano.
-
-**Interpretación.** Picos que superan la media móvil indican días de cobertura extraordinaria, probablemente asociados a eventos laborales concretos (un paro nacional, un conflicto sectorial). Períodos prolongados por encima de la media móvil indican una escalada sostenida. Valles pronunciados corresponden típicamente a fines de semana, feriados o períodos vacacionales.
-
-**Justificación.** La media móvil de 7 días es el estándar en el análisis de series temporales con ciclos semanales. Sin ella, el gráfico diario resulta ruidoso y dificulta la lectura de tendencias. Su uso permite distinguir el *ruido* del ciclo semanal de las variaciones realmente significativas (Hyndman & Athanasopoulos, 2021).
-
----
-
-### Celda 17 — Heatmap diario × categoría
-
-**Descripción.** Genera un mapa de calor con `seaborn.heatmap` donde las filas son los diarios, las columnas son las categorías temáticas y el valor de cada celda es la cantidad de noticias en esa intersección. La paleta `YlOrRd` codifica la magnitud: celdas más oscuras indican mayor concentración de cobertura.
-
-**Uso.** Es la forma más compacta de visualizar la relación entre dos variables categóricas. Permite detectar patrones de especialización (un diario que concentra su cobertura en una o dos categorías) o de dispersión (medios que cubren todas las categorías de forma pareja).
-
-**Interpretación.** Una celda muy oscura en la intersección de un diario y una categoría indica cobertura desproporcionada de ese tema. Las celdas con valor 0 son igualmente significativas: revelan qué temas son ignorados por qué medios. Filas uniformemente claras pueden indicar un diario con baja cobertura laboral en general.
-
-**Justificación.** El heatmap es la visualización canónica para matrices de frecuencias en ciencias sociales. Permite procesar simultáneamente información sobre dos dimensiones categóricas, tarea que sería imposible con series de gráficos separados. Es especialmente útil cuando el número de categorías hace inmanejable una tabla numérica.
-
----
-
-### Celda 18 — Boxplot de intensidad por categoría
-
-**Descripción.** Grafica la distribución de `n_palabras_clave` para cada categoría temática mediante diagramas de caja. Cada caja muestra la mediana (línea roja), los cuartiles 25 y 75 (bordes de la caja) y los valores atípicos (puntos fuera de los bigotes).
-
-**Uso.** Responde a la pregunta: ¿hay categorías temáticas que concentran titulares más densos en términos laborales? Compara la complejidad informativa entre categorías, lo que no es posible con un simple conteo de frecuencias.
-
-**Interpretación.** Una categoría con mediana alta (por ejemplo, `huelga_paro` con mediana de 4 KW) indica que esas noticias articulan múltiples conceptos laborales en el mismo titular. Una categoría con mediana baja y poca dispersión indica titulares más simples. Los valores atípicos son noticias excepcionalmente densas que merecen revisión cualitativa.
-
-**Justificación.** El boxplot es la herramienta estándar para comparar distribuciones entre grupos cuando no se puede asumir normalidad. En este contexto, `n_palabras_clave` tiene una distribución asimétrica (pocos titulares con muchas KW, muchos con pocas), por lo que la mediana es un estadístico más representativo que la media.
-
----
-
-### Celda 19 — Nube de palabras clave
-
-**Descripción.** Genera una visualización tipo *wordcloud* donde el tamaño de cada palabra es proporcional a su frecuencia en el corpus completo. Se configura con `collocations=False` para evitar repetición de bigramas y con `colormap="Blues"` para una lectura limpia.
-
-**Uso.** Es principalmente una herramienta de comunicación visual, útil para presentaciones, informes ejecutivos o materiales de divulgación. Transmite en segundos cuál es el vocabulario dominante del corpus sin necesidad de leer tablas de frecuencias.
-
-**Interpretación.** Las palabras más grandes son las más frecuentes en los titulares analizados. Si `trabajo` domina con gran diferencia, el corpus incluye muchas noticias genéricas sobre empleo. Si `paro` o `huelga` son las más grandes, el período estuvo marcado por conflictos activos.
-
-**Justificación.** Las nubes de palabras tienen limitaciones metodológicas conocidas: no muestran contexto, no distinguen connotaciones y pueden privilegiar términos morfológicamente simples. Se usan aquí con el propósito específico de comunicación accesible, complementando los análisis de frecuencia más rigurosos de las celdas anteriores (Heimerl et al., 2014).
-
----
-
-### Celda 20 — Resumen ejecutivo
-
-**Descripción.** Compila nueve métricas clave del corpus en una tabla compacta exportada como `.xlsx`: total de noticias antes y después de la deduplicación, cantidad de diarios monitoreados, categorías detectadas, palabras clave únicas, promedio de KW por noticia, densidad máxima registrada, categoría dominante y diario más activo.
-
-**Uso.** Sirve como síntesis del análisis para compartir con colaboradores o incluir en reportes. El archivo puede abrirse en Excel o Google Sheets sin necesidad de ejecutar nuevamente el notebook.
-
-**Interpretación.** Las métricas se leen de forma comparativa entre períodos o ejecuciones del proyecto. La diferencia entre "total noticias" y "noticias únicas" indica el nivel de duplicación entre diarios: si un mismo evento es cubierto por varios medios, aparecerá múltiples veces con titulares ligeramente distintos.
-
-**Justificación.** Un resumen ejecutivo es estándar metodológico en investigación aplicada. Permite que otros investigadores o actores institucionales evalúen la representatividad del corpus sin necesidad de revisar el notebook completo, siguiendo los principios de transparencia y reproducibilidad (Stodden et al., 2014).
-
----
-
-## Fase V — Análisis avanzados
-
-### Celda 21 — Perfil editorial por diario
-
-**Descripción.** Calcula la distribución porcentual de categorías temáticas dentro de cada diario usando `pd.crosstab` con `normalize="index"`, dividiendo cada valor por el total de noticias de ese diario. El resultado se visualiza como un gráfico de barras apiladas al 100% y se complementa con una tabla de la categoría dominante por medio.
-
-**Uso.** Es el análisis central para comparar la agenda editorial de cada diario. A diferencia de la frecuencia absoluta, la normalización por fila permite comparar medios con distinto número de noticias en un pie de igualdad.
-
-**Interpretación.** Un diario cuya barra está dominada por un solo color tiene una agenda laboral especializada hacia ese tipo de conflicto. Un diario con colores distribuidos parejamente tiene una cobertura más diversa. Las diferencias entre medios pueden reflejar distintas concepciones editoriales de qué es noticiable en el mundo laboral.
-
-**Justificación.** El concepto de perfil editorial es central en la sociología de los medios y el periodismo comparado. La normalización por diario es metodológicamente necesaria para eliminar el efecto tamaño: sin ella, un diario con 200 noticias siempre parecería cuantitativamente más relevante que uno con 50, aunque su distribución temática sea idéntica (Breed, 1955).
-
----
-
-### Celda 22 — Red de co-ocurrencia
-
-**Descripción.** Construye un grafo no dirigido con NetworkX donde cada nodo es una palabra clave y cada arista conecta dos términos que aparecieron juntos en el mismo titular al menos N veces (umbral configurable). El grosor de las aristas refleja la frecuencia del par. Calcula la centralidad de grado de cada nodo para identificar los términos más articuladores de la red.
-
-**Uso.** Permite ir más allá del análisis de frecuencias individuales para descubrir la estructura semántica del corpus: qué términos actúan como conectores que articulan múltiples dimensiones del discurso laboral.
-
-**Interpretación.** Un nodo con alta centralidad de grado es un término que co-ocurre con vocabulario muy variado: es conceptualmente central en el discurso. Clústeres de nodos densamente conectados entre sí forman campos semánticos, grupos de palabras que los medios usan en los mismos contextos. Nodos aislados son términos que los medios usan en contextos muy específicos.
-
-**Justificación.** El análisis de redes semánticas es una metodología consolidada en lingüística computacional y humanidades digitales. Aplicada a corpus periodísticos, permite identificar la estructura implícita del discurso: qué asociaciones de ideas se dan por sentadas y qué conceptos se presentan como relacionados (Manning & Schütze, 1999). El umbral de co-ocurrencia debe calibrarse según el tamaño del corpus: corpora pequeños requieren umbrales más bajos para no obtener una red vacía.
-
----
-
-### Celda 23 — Índice de diversidad temática (entropía de Shannon)
-
-**Descripción.** Calcula la entropía de Shannon para la distribución de categorías temáticas de cada diario. La fórmula es `H = -∑ pᵢ · log₂(pᵢ)` donde `pᵢ` es la proporción de noticias de cada categoría dentro del diario. El valor máximo teórico es `log₂(n_categorías)` y corresponde a una distribución perfectamente uniforme.
-
-**Uso.** Cuantifica en una única cifra comparable cuán variada es la cobertura laboral de cada medio. Complementa el perfil editorial (celda 21) con un indicador sintético y objetivable.
-
-**Interpretación.** Un diario con entropía cercana al máximo teórico cubre todos los tipos de conflicto con frecuencias similares: tiene una agenda diversa. Un diario con entropía baja concentra casi toda su cobertura en una o dos categorías. La diferencia entre el diario más y el menos diverso puede interpretarse como la *brecha de agenda* entre medios.
-
-**Justificación.** La entropía de Shannon es el indicador estándar de diversidad en teoría de la información (Shannon, 1948), ampliamente adoptado en ecología, economía y ciencias de la comunicación para medir concentración y pluralismo. Su ventaja sobre medidas más simples (como el índice de Herfindahl) es que es sensible tanto a la distribución de frecuencias como al número de categorías posibles.
-
----
-
-### Celda 24 — Actores sindicales mencionados
-
-**Descripción.** Cruza el corpus contra un diccionario de organizaciones sindicales y laborales (CGT, ATE, UTA, UEPC, SUOEM, ADIUC, plataformas de economía de plataforma, etc.) para contar en cuántas noticias aparece cada actor y en cuántos diarios es nombrado. La visualización muestra barras ordenadas por menciones con anotaciones del número de medios que cubren cada organización.
-
-**Uso.** Identifica qué organizaciones tienen mayor visibilidad mediática, cuáles son ignoradas por la prensa, y si existe un patrón de concentración: ciertos actores solo cubiertos por ciertos medios. El CSV exportado permite profundizar el análisis cualitativo por actor.
-
-**Interpretación.** Una organización con muchas menciones pero presencia en pocos diarios tiene visibilidad concentrada. Una organización con pocas menciones pero en muchos diarios tiene presencia dispersa pero amplia. Ambos patrones tienen implicaciones distintas para la construcción de agenda pública.
-
-**Justificación.** La visibilidad de los actores sociales en los medios es un indicador de poder simbólico: las organizaciones que no son nombradas tienen menor capacidad de instalar sus demandas en la agenda pública (Bourdieu, 1991). Medir esa visibilidad cuantitativamente permite objetivar lo que de otro modo sería una impresión subjetiva del investigador.
-
----
-
-### Celda 25 — Score de relevancia y ranking de noticias
-
-**Descripción.** Construye un índice compuesto de relevancia ponderando cuatro dimensiones normalizadas al rango [0, 1] mediante normalización min-max:
-
-| Componente | Peso | Lógica |
-|---|---|---|
-| Densidad de palabras clave | 40% | Más términos laborales = más central al tema |
-| Actores sindicales mencionados | 25% | Más actores = más institucional |
-| Gravedad de la categoría | 25% | Huelga > corte > salario > desempleo |
-| Longitud del titular | 10% | Más descriptivo = más informativo |
-
-**Uso.** Permite seleccionar automáticamente las noticias más significativas del corpus para análisis cualitativo manual. En lugar de revisar cientos de titulares, el investigador puede concentrarse en el top 20 o top 50.
-
-**Interpretación.** Un score alto indica una noticia que combina múltiples palabras clave laborales, menciona al menos un actor sindical, pertenece a una categoría de alta conflictividad y tiene un titular extenso e informativo. La distribución del score por diario revela si algún medio publica sistemáticamente noticias más densas y relevantes.
-
-**Justificación.** Los índices compuestos son una herramienta estándar en ciencias sociales cuando no existe una sola variable que capture la relevancia de un fenómeno multidimensional. Los pesos asignados son decisiones metodológicas que deben explicitarse y pueden ajustarse según la hipótesis de investigación. La normalización min-max garantiza que ninguna variable domine por su escala de medición (Greco et al., 2019).
-
----
-
-## Fase VI — Análisis temporal e histórico
-
-### Celda 27 — Noticias vs. tiempo (análisis temporal completo)
-
-**Descripción.** Genera tres niveles de granularidad temporal en un mismo conjunto de gráficos: serie diaria con media móvil de 7 días (panel A), histograma semanal (panel B) e histograma mensual (panel C). Complementariamente produce dos gráficos adicionales: evolución diaria desagregada por diario en líneas, y composición temática mensual en área apilada.
-
-**Uso.** Es el análisis temporal principal del corpus histórico. Las tres granularidades responden a preguntas distintas: el gráfico diario detecta eventos puntuales, el semanal muestra ritmos de cobertura eliminando el ruido de fin de semana, y el mensual revela tendencias estructurales de mediano plazo.
-
-**Interpretación.** La combinación de los tres paneles permite distinguir entre tipos de variación: un pico en el gráfico diario que no se ve en el semanal fue un evento puntual sin sostenimiento. Un alza durante varias semanas visible en el mensual indica un conflicto prolongado o una tendencia editorial. El área apilada mensual permite ver si la composición temática cambia con el tiempo.
-
-**Justificación.** El análisis multiescalar del tiempo es una práctica estándar en periodismo de datos y ciencias sociales computacionales. Ninguna granularidad sola es suficiente: el dato diario tiene demasiado ruido, el mensual puede ocultar eventos significativos (Hyndman & Athanasopoulos, 2021).
-
----
-
-### Celda 28 — Comparación entre períodos
-
-**Descripción.** Divide el corpus en dos períodos en torno a una `FECHA_CORTE` configurable y compara métricas clave entre ambos: total de noticias, días cubiertos, diarios activos, categorías únicas, media de KW por noticia, mediana de longitud de titular e intensidad diaria (noticias/día). El gráfico presenta tres paneles comparativos: totales, intensidad y distribución de categorías.
-
-**Uso.** Diseñado para evaluar si un evento exógeno (cambio de gobierno, decreto económico, paro nacional, reforma laboral) modificó el volumen o la composición de la cobertura laboral. La `FECHA_CORTE` puede ajustarse para cualquier hito relevante para la hipótesis del investigador.
-
-**Interpretación.** Un aumento significativo de "noticias por día" en el período posterior indica que el evento de referencia intensificó la cobertura laboral. Un cambio en la distribución de categorías puede indicar un giro en el tipo de conflicto dominante. La métrica de "media de KW por noticia" es especialmente sensible: si aumenta tras el corte, los titulares posteriores son más ricos en vocabulario laboral.
-
-**Justificación.** El diseño pre-post es el más simple de los diseños cuasi-experimentales en ciencias sociales. Aunque no permite establecer causalidad, sí permite documentar covariación temporal entre un evento y la cobertura mediática, que es la pregunta central de estudios de agenda-setting en contextos de cambio político o económico (McCombs & Shaw, 1972).
-
----
-
-### Celda 29 — Detección de picos de conflictividad
-
-**Descripción.** Identifica automáticamente los días con cobertura anormalmente alta usando un criterio estadístico: un día es "pico" cuando su cantidad de noticias supera `media + umbral × σ`. El umbral (por defecto 1.5σ) es configurable. Para los 5 picos más grandes, imprime las noticias que los componen con diario y categoría. Exporta un archivo `.xlsx` con todas las noticias de los días pico.
-
-**Uso.** Permite hacer análisis retrospectivo de coyuntura: dado que hubo un pico de cobertura en una fecha, ¿qué eventos lo explican? El archivo exportado es el insumo para revisión cualitativa manual focalizada, concentrando la atención en los momentos de mayor actividad mediática.
-
-**Interpretación.** Un pico con 80% de noticias de `huelga_paro` en un único diario puede ser un evento sectorial cubierto en profundidad por ese medio. Un pico con distribución equilibrada entre diarios y categorías indica un evento de impacto amplio como un paro general. El umbral de 1.5σ detecta aproximadamente el 7% de los días más activos; subir a 2σ selecciona solo el 2.5% más extremo.
-
-**Justificación.** La detección de anomalías estadísticas es una técnica estándar en análisis de series temporales. En el análisis de cobertura mediática, los picos son equivalentes a lo que los sociólogos llaman *oleadas de protesta*: momentos de intensificación de la acción colectiva o de su representación mediática. Identificarlos automáticamente permite priorizar el trabajo cualitativo sin depender del conocimiento previo del investigador sobre el período (Tarrow, 2011).
-
----
-
-### Celda 30 — Evolución de actores sindicales en el tiempo
-
-**Descripción.** Para cada actor del diccionario `ACTORES`, crea una columna binaria que indica si ese actor fue mencionado en cada titular. Agrupa por mes y suma las presencias, construyendo una matriz actor × mes. Produce dos visualizaciones: líneas de evolución mensual y un heatmap actor × mes que actúa como calendario de visibilidad.
-
-**Uso.** Permite rastrear la trayectoria mediática de organizaciones específicas a lo largo del tiempo. Es especialmente útil para analizar si la irrupción de un sindicato en los medios coincide con un conflicto particular, con períodos de paritarias o con eventos políticos externos.
-
-**Interpretación.** Una línea de evolución con picos discretos indica que el actor solo aparece en coyunturas específicas. Una línea alta y estable indica que ese actor es una referencia permanente en la cobertura laboral. El heatmap permite identificar qué meses concentran la presencia de cada organización, facilitando la correlación con el calendario de conflictividad real.
-
-**Justificación.** El concepto de *trayectoria mediática* de un actor social es central en el análisis longitudinal de movimientos sociales y organizaciones gremiales. La visibilidad de un sindicato en los medios no es estable: fluctúa según su actividad, la coyuntura política y las prioridades editoriales. Medir esa fluctuación permite distinguir actores con capacidad de instalar agenda de forma sostenida de aquellos que solo emergen en momentos de conflicto agudo (Bourdieu, 1991; Tarrow, 2011).
-
----
-
-### Celda 31 — Sectores afectados vs. sectores movilizados
-
-**Descripción.** Clasifica cada titular según su encuadre predominante en cuatro categorías mutuamente excluyentes: `movilizado` (el sector laboral actúa, reclama, se organiza), `afectado` (el sector padece algo externo como despidos, ajuste o crisis), `ambos` (coexisten los dos encuadres) y `sin_encuadre`. La clasificación se realiza con dos expresiones regulares independientes que capturan vocabulario de acción versus vocabulario de padecimiento. Produce tres paneles: torta general, barras apiladas por diario y evolución mensual del encuadre. Exporta el dataset completo con la columna `encuadre` para análisis cualitativo posterior.
-
-**Uso.** Es el análisis cualitativo más sofisticado del proyecto. Permite estudiar el *framing* de la conflictividad laboral: ¿los diarios presentan a los trabajadores como víctimas pasivas de decisiones económicas o como actores que se organizan y luchan? Esta distinción es central en el análisis crítico del discurso y en los estudios de representación mediática del trabajo.
-
-**Interpretación.** Si la categoría `afectado` domina el corpus, los medios encuadran la conflictividad laboral predominantemente desde la perspectiva de la vulnerabilidad. Si `movilizado` es más frecuente, los medios dan visibilidad a la agencia colectiva de los trabajadores. La evolución mensual permite ver si el encuadre cambia con la coyuntura. Las diferencias entre diarios revelan distintas concepciones editoriales de qué es el conflicto laboral.
-
-**Justificación.** La teoría del framing (Entman, 1993; Gitlin, 1980) sostiene que los medios no solo informan sobre la realidad sino que la enmarcan en narrativas que definen quiénes son los protagonistas, cuáles son las causas y qué soluciones son legítimas. En el caso del conflicto laboral, el encuadre `afectado` naturaliza la posición de víctima y diluye la responsabilidad de los actores económicos; el encuadre `movilizado` reconoce la agencia colectiva de los trabajadores. Operacionalizar esta distinción mediante expresiones regulares es una forma de escalar el análisis de framing a corpora de cientos o miles de titulares, tarea que de otro modo requeriría codificación manual con protocolos de acuerdo inter-juez.
+**Justificación.** En proyectos de investigación longitudinales, es común que la base de datos crezca de forma incremental (un archivo por año o por tanda de codificación). Automatizar la normalización de columnas evita que pequeñas inconsistencias de nomenclatura (mayúsculas, espacios, variantes de nombre) generen columnas duplicadas o pérdida silenciosa de datos al concatenar.
 
 ---
 
 ## Referencias metodológicas
 
-- Bourdieu, P. (1991). *Language and Symbolic Power*. Harvard University Press.
 - Breed, W. (1955). Social control in the newsroom: A functional analysis. *Social Forces*, 33(4), 326–335.
-- Cairo, A. (2016). *The Truthful Art: Data, Charts, and Maps for Communication*. New Riders.
-- Entman, R. M. (1993). Framing: Toward clarification of a fractured paradigm. *Journal of Communication*, 43(4), 51–58.
-- Fairclough, N. (1989). *Language and Power*. Longman.
-- Firth, J. R. (1957). A synopsis of linguistic theory 1930–1955. *Studies in Linguistic Analysis*, 1–32.
-- Gitlin, T. (1980). *The Whole World Is Watching*. University of California Press.
-- Greco, S., Ishizaka, A., Tasiou, M., & Torrisi, G. (2019). On the methodological framework of composite indices. *Social Indicators Research*, 141(2), 637–676.
-- Heimerl, F., Lohmann, S., Lange, S., & Ertl, T. (2014). Word cloud explorer. In *47th Hawaii International Conference on System Sciences* (pp. 1833–1842). IEEE.
-- Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and Practice* (3rd ed.). OTexts. [https://otexts.com/fpp3](https://otexts.com/fpp3)
 - Knuth, D. E. (1984). Literate programming. *The Computer Journal*, 27(2), 97–111.
-- Krippendorff, K. (2018). *Content Analysis: An Introduction to Its Methodology* (4th ed.). SAGE.
 - Manning, C. D., & Schütze, H. (1999). *Foundations of Statistical Natural Language Processing*. MIT Press.
 - McCombs, M., & Shaw, D. (1972). The agenda-setting function of mass media. *Public Opinion Quarterly*, 36(2), 176–187.
 - Neuendorf, K. A. (2017). *The Content Analysis Guidebook* (2nd ed.). SAGE.
 - Shannon, C. E. (1948). A mathematical theory of communication. *Bell System Technical Journal*, 27(3), 379–423.
+- Tarrow, S. (2011). *Power in Movement: Social Movements and Contentious Politics* (3rd ed.). Cambridge University Press.
+- Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.
+
+---
+---
+
+# English Version
+
+## Table of Contents
+
+- [1. Overall project structure](#1-overall-project-structure)
+- [2. Database column schema](#2-database-column-schema)
+- [Phase 0 — Setup](#phase-0--setup)
+- [Phase 1 — Data loading](#phase-1--data-loading)
+- [Phase 2 — Corpus quality control](#phase-2--corpus-quality-control)
+- [Phase 3 — Descriptive analysis](#phase-3--descriptive-analysis)
+- [Phase 4 — Advanced temporal analysis](#phase-4--advanced-temporal-analysis)
+- [Phase 5 — Editorial profile, networks and actors](#phase-5--editorial-profile-networks-and-actors)
+- [Phase 6 — Unified graphing engine](#phase-6--unified-graphing-engine)
+- [Phase 7 — Loading additional datasets](#phase-7--loading-additional-datasets)
+- [Methodological references](#methodological-references)
+
+---
+
+## 1. Overall project structure
+
+The project is organized as a modular eight-phase pipeline. Phases 0 through 2 are always mandatory; phases 3 through 7 can be run in any order once the cleaned DataFrame (`df_limpio`) is available.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Phase 0 — Setup                     Install + imports           │
+│  Phase 1 — Data loading              Excel (Google Drive)        │
+│  Phase 2 — Quality control           Exceptions + duplicates     │
+│  Phase 3 — Descriptive analysis      Frequencies, heatmap, etc.  │
+│  Phase 4 — Temporal analysis         Peaks, periods, evolution   │
+│  Phase 5 — Editorial profile & nets  Shannon, co-occurrence      │
+│  Phase 6 — Unified graphing engine   19 analysis types           │
+│  Phase 7 — Additional datasets       Other years / periods       │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+Unlike a live-scraping pipeline, this project starts from **data already manually coded** by the research team: each row represents a news item already classified by conflict dynamic, actors, action format, demand, and workers' participation. This removes the need for regex-based automatic classifiers (as in a pure scraping project) and shifts the methodological focus toward **quality control of the coded corpus** and **descriptive/temporal analysis** of the already-assigned categories.
+
+The **unit of analysis** is the coded news item, identified by its `Título` (headline) and `Link`. The corpus spans multiple newspapers from the province of Córdoba over an extended period (2012–2026, depending on the loaded file), enabling both synchronic cuts (a newspaper's profile within a given year) and diachronic ones (evolution of conflict dynamics or actors over time).
+
+---
+
+## 2. Database column schema
+
+| Column | Type | Description |
+|---|---|---|
+| `Link` | `str` | URL of the original news item |
+| `Palabras` | `str` | Keyword(s) that triggered the item's inclusion in the corpus |
+| `Título` | `str` | News headline (unit of analysis) |
+| `Contenido` | `str` | Article body (when available) |
+| `Fecha` | `datetime` | Publication date |
+| `Mes` / `Año` | `str` / `int` | Month and year derived from `Fecha` |
+| `Diario` | `str` | Outlet that published the item |
+| `Pertenencia Sectorial` | `str` | Public / Private / Mixed / Multisectoral / etc. |
+| `Código DC` / `Dinámica Conflictual` | `str` | Thematic classification of the conflict |
+| `Sector` / `Sub sector` | `str` | Economic activity branch |
+| `Organización detallada` / `Organización Agregada` | `str` | Labor actor(s) mentioned |
+| `Departamento` | `str` | Provincial department where the event took place |
+| `Antagonista` / `Actor Estatal` / `Nivel de Gobierno` | `str` | Counterpart of the conflict |
+| `Iniciativa Estado` / `Resp. Estado` | `str` | State's role in the conflict |
+| `Participación` | `str` | Level of worker involvement (rank-and-file, leadership, both) |
+| `Demanda princ. Abierta` / `Demanda principal agrupada` | `str` | Central claim of the action |
+| `Formato principal` / `Formato agregado` / `Tipo Formato AC` | `str` | Type of action (direct/indirect, strike, mobilization, etc.) |
+
+> **Note:** column names may vary slightly between files from different years (extra spaces, capitalization). Phase 1 and Phase 7 include automatic normalization to prevent errors from this cause.
+
+---
+
+## Phase 0 — Setup
+
+### Installing dependencies
+
+**Description.** Installs `networkx` and `wordcloud`, the only libraries not pre-installed by default in Colab that the project uses (`pandas`, `numpy`, `matplotlib`, and `seaborn` come pre-installed).
+
+**Usage.** Runs once per Colab session; must be re-run after any runtime restart.
+
+**Interpretation.** Produces no analytical output. An installation failure will block Phase 5 cells that depend on `networkx` (co-occurrence network) and the Phase 3 cell that depends on `wordcloud`.
+
+**Rationale.** Making dependencies explicit in a separate cell is a standard reproducibility practice (Knuth, 1984): it allows any collaborator to replicate the analysis environment without prior knowledge of the project.
+
+---
+
+## Phase 1 — Data loading
+
+**Description.** Mounts Google Drive, reads the Excel database file (`pd.read_excel`) specifying the correct sheet, strips extra whitespace from column names with `str.strip()`, and parses `Fecha` into `datetime` format with `dayfirst=True`.
+
+**Usage.** This is the pipeline's mandatory entry cell. Requires adjusting `RUTA_ARCHIVO` and `NOMBRE_HOJA` to match the actual file in the researcher's Google Drive.
+
+**Interpretation.** `df.info()` confirms that `Fecha` was correctly typed as `datetime64` (not text) and shows the count of missing values per column, allowing early detection of incompletely coded columns.
+
+**Rationale.** The `.xlsx` format was chosen because it preserves multi-sheet structure (useful when the source file separates data by year or by analysis type, as seen in the original file with the "Púb y Priv", "Participación", and "Base" sheets), and is directly auditable by the research team without additional tools.
+
+---
+
+## Phase 2 — Corpus quality control
+
+**Description.** Applies two independent cleaning mechanisms on `Título`:
+
+- **A) Exceptions (false positives):** a dictionary of regular expressions grouped by category (`cortes_servicios`, `trabajo_obra`, `paro_medico`, etc.) flags headlines that would otherwise trigger a labor-related filter due to lexical ambiguity (e.g., "power outage" vs. "road blockade"), but that do not actually correspond to labor conflict.
+- **B) Jaccard similarity:** compares pairs of headlines published by different outlets within a ±1-day window, flagging as potential "same event" any pair whose lexical similarity meets or exceeds a configurable threshold (0.6 by default).
+
+**Usage.** `limpiar_corpus(df)` runs once, immediately after loading, and produces three outputs: `df_limpio` (corpus cleaned of false positives), `df_falsos` (log of discarded rows, for audit purposes), and `df_duplicados` (pairs of items covering the same event, which are **not automatically removed** — whether to keep them for cross-media agenda analysis is left to the researcher's judgment).
+
+**Interpretation.** The summary printed by `limpiar_corpus()` indicates how many false positives were discarded and by which exception category, and how many semantic duplicate pairs were detected. A high count in a specific exception category suggests the original corpus has a bias toward that type of lexical ambiguity and that the exceptions dictionary may need further tuning.
+
+**Rationale.** Unlike a scraped corpus (where the entry filter is a keyword regex over free text), this database was already manually coded by the research team. Quality control here serves a different purpose: auditing the consistency of the coded corpus (dates, cross-source duplicates, empty columns) rather than filtering out non-labor content, which was in principle already excluded during manual coding. The pre/post quality test (`test_calidad_corpus()`) explicitly quantifies the impact of cleaning on: total records, exact and `Link`-based duplicates, unparseable or out-of-range dates (2012–2026), inconsistencies between `Año` and the actual year in `Fecha`, malformed links, and empty or placeholder cells (`"sin datos"`, `"s/d"`) in `Dinámica Conflictual`.
+
+---
+
+## Phase 3 — Descriptive analysis
+
+**Description.** A set of basic exploratory analyses over `df_limpio`: general overview (`info()`), frequency by `Diario`, frequency by `Dinámica Conflictual` with a Diario × Dinámica cross-tabulation, simple date-based time series, heatmap, word cloud extracted from `Título`, and an executive summary with the corpus's core metrics.
+
+**Usage.** Run as the first analytical step after cleaning, before any advanced analysis. Requires no parameters: operates directly on `df_limpio`.
+
+**Interpretation.** A very uneven distribution across outlets (one accounting for over 50% of the corpus) indicates that subsequent comparative analyses will be skewed toward that outlet, and normalizing by proportion is advisable before comparing. The dominant category (`Dinámica Conflictual`) reflects which type of conflict received the most media visibility in the period — which does not necessarily coincide with its actual frequency in society, but rather with editorial coverage decisions.
+
+**Rationale.** Initial exploratory data analysis (EDA) is a methodological requirement before interpreting any results (Tukey, 1977). Differential volume across sources is one of the most common biases in comparative media analysis (Neuendorf, 2017), and making it explicit from the outset allows conscious methodological decisions about normalization.
+
+---
+
+## Phase 4 — Advanced temporal analysis
+
+**Description.** Includes six analyses: (1) evolution of items per day/week/month with a 7-day moving average and monthly composition by conflict dynamic (stacked area); (2) comparison of metrics between two periods defined by a configurable `FECHA_CORTE`; (3) automatic detection of conflict peaks (days with items > mean + N·σ); (4) monthly evolution of the most-mentioned organizations, with an organization × month heatmap; (5) classification and evolution of direct vs. indirect actions based on `Formato agregado`.
+
+**Usage.** All functions accept `año_inicio` and `año_fin` as parameters, allowing the analysis to be bounded to any time window in the database (e.g., comparing 2023–2024 vs. 2025–2026). Period comparison additionally requires specifying the `FECHA_CORTE` corresponding to an event of interest (change of administration, general strike, labor reform).
+
+**Interpretation.** A conflict peak highly concentrated in a single `Dinámica Conflictual` and a single `Diario` suggests a sectoral event covered in depth by that outlet; a peak spread across multiple dynamics and outlets suggests a broad-impact event (general strike, economic policy measure). In period comparison, a significant increase in "items per day" after the cutoff date indicates that the reference event intensified labor-conflict coverage.
+
+**Rationale.** The pre-post design is the simplest of quasi-experimental designs in social science: it cannot establish causality, but it does document temporal covariation between an event and media coverage — a central question in agenda-setting studies within contexts of political change (McCombs & Shaw, 1972). Statistical peak detection avoids relying exclusively on the researcher's prior knowledge of the period (Tarrow, 2011).
+
+---
+
+## Phase 5 — Editorial profile, networks and actors
+
+**Description.** Four analyses that characterize coverage by outlet and by actor: (1) thematic profile by outlet (percentage distribution of `Dinámica Conflictual` row-normalized, visualized as 100% stacked bars); (2) co-occurrence network of words extracted from `Título` using NetworkX, with a configurable frequency threshold; (3) thematic diversity index by outlet via Shannon entropy over `Dinámica Conflictual`; (4) ranking of the most-mentioned organizations (`Organización detallada` or `Organización Agregada`), counting how many distinct outlets mention each one.
+
+**Usage.** The editorial profile and Shannon diversity operate on the same Diario × Dinámica Conflictual cross-tabulation, so they are best interpreted together: the profile shows *what* each outlet covers, while entropy summarizes *how concentrated or dispersed* that coverage is in a single comparable number. The co-occurrence network and the organization ranking accept `año_inicio`/`año_fin` to bound the analysis period.
+
+**Interpretation.** An outlet with entropy close to the theoretical maximum (`log₂(n_dynamics)`) covers all conflict types with similar frequencies; an outlet with low entropy concentrates its coverage in few conflict dynamics. In the co-occurrence network, a node with high degree centrality is a term that appears in varied contexts within headlines — i.e., it is conceptually central to the corpus's journalistic discourse.
+
+**Rationale.** Row-wise normalization in the editorial profile is methodologically necessary to eliminate the size effect between outlets (Breed, 1955). Shannon entropy is the standard diversity indicator in information theory (Shannon, 1948), with advantages over simpler measures like the Herfindahl index because it is sensitive both to the frequency distribution and to the number of possible categories. Semantic network analysis allows identifying the implicit structure of journalistic discourse on labor conflict (Manning & Schütze, 1999).
+
+---
+
+## Phase 6 — Unified graphing engine
+
+**Description.** A two-layer system: (1) the generic `graficar()` function, which builds Period × Category pivot tables from any column in the database and visualizes them as stacked bars (vertical or horizontal), lines, or 100% stacked bars; (2) seven specialized functions for analyses that don't reduce to a simple pivot table (co-occurrence network, Shannon diversity, organizations, organization evolution, peaks, period comparison, direct vs. indirect). Both layers are integrated into `menu_graficos()`, an interactive 19-option menu that reproduces the project's reference charts and adds the newer analyses, all under a single parameter interface.
+
+**Usage.** Running `menu_graficos(df_limpio)` prompts, via console: which analysis to generate, the temporal granularity (year/quarter/month), the year range, and — depending on the chosen analysis — additional parameters (top N categories, absolute/percentage values, co-occurrence threshold, cutoff date). It can be re-run as many times as needed within a single session to produce different charts.
+
+**Interpretation.** Each generated chart corresponds exactly to a reproducible configuration of filter + column + period, which makes it easy to document in a methodological report exactly which data subset produced each visualization — a transparency requirement particularly relevant when comparing results across different time cuts of the same corpus.
+
+**Rationale.** Centralizing charting logic in a single parameterizable engine, rather than writing a separate code cell per chart, reduces duplication and minimizes the risk of inconsistencies between visualizations that should be comparable to each other (for example, two charts of the same conflict dynamic in different periods, generated with subtly different filtering logic).
+
+---
+
+## Phase 7 — Loading additional datasets
+
+**Description.** Allows incorporating `.xlsx` files corresponding to other years or periods not covered by the main database. Normalizes column names against a dictionary of known variants (`MAPA_COLUMNAS_PROYECTO`), verifies the presence of minimum required columns (`Título`, `Fecha`, `Diario`), parses dates, and concatenates the result with the original database, removing exact duplicates by `Título` + `Diario` + `Fecha`.
+
+**Usage.** Run after Phase 1 and before Phase 2, so the full combined corpus goes through quality control in a single pass. Supports uploading multiple files in one run, and interactively asks which sheet to use when a file has more than one.
+
+**Interpretation.** The cell's log reports how many rows were incorporated from each additional file and how many duplicates were removed when merging with the original database — a high overlap between files suggests that coverage periods intersect and that each source's date ranges should be reviewed before considering the merge final.
+
+**Rationale.** In longitudinal research projects, it is common for the database to grow incrementally (one file per year or per coding batch). Automating column normalization prevents small naming inconsistencies (capitalization, whitespace, name variants) from generating duplicate columns or silent data loss during concatenation.
+
+---
+
+## Methodological references
+
+- Breed, W. (1955). Social control in the newsroom: A functional analysis. *Social Forces*, 33(4), 326–335.
+- Knuth, D. E. (1984). Literate programming. *The Computer Journal*, 27(2), 97–111.
+- Manning, C. D., & Schütze, H. (1999). *Foundations of Statistical Natural Language Processing*. MIT Press.
+- McCombs, M., & Shaw, D. (1972). The agenda-setting function of mass media. *Public Opinion Quarterly*, 36(2), 176–187.
+- Neuendorf, K. A. (2017). *The Content Analysis Guidebook* (2nd ed.). SAGE.
+- Shannon, C. E. (1948). A mathematical theory of communication. *Bell System Technical Journal*, 27(3), 379–423.
+- Tarrow, S. (2011). *Power in Movement: Social Movements and Contentious Politics* (3rd ed.). Cambridge University Press.
+- Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.(3), 379–423.
 - Stodden, V., Leisch, F., & Peng, R. D. (2014). *Implementing Reproducible Research*. CRC Press.
 - Tarrow, S. (2011). *Power in Movement: Social Movements and Contentious Politics* (3rd ed.). Cambridge University Press.
 - Tufte, E. R. (1983). *The Visual Display of Quantitative Information*. Graphics Press.
